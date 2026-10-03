@@ -6,6 +6,7 @@ import ManagerRegister from './pages/ManagerRegister'
 import EmployeeLogin from './pages/EmployeeLogin'
 import ManagerDashboard from './components/Dashboard/ManagerDashboard'
 import EmployeeDashboard from './components/Dashboard/EmployeeDashboard'
+import NotFound from './pages/NotFound'
 
 const ProtectedRoute = ({ children, role }) => {
   const { user } = useAuth()
@@ -27,6 +28,7 @@ function App() {
       <Route path='/employee/dashboard' element={
         <ProtectedRoute role='employee'><EmployeeDashboard /></ProtectedRoute>
       } />
+      <Route path='*' element={<NotFound />} />
     </Routes>
   )
 }

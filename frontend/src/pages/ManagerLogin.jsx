@@ -1,56 +1,98 @@
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthProvider'
 import api from '../utils/api'
+import AuthLayout from '../components/layout/AuthLayout'
+import { MailIcon, LockIcon, EyeIcon, EyeSlashIcon, ArrowRightIcon } from '../components/common/Icons'
+import authSide from '../assets/auth-side.jpg'
 
 const ManagerLogin = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
   const { login } = useAuth()
-  const navigate = useNavigate()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
+    setLoading(true)
     try {
       const { data } = await api.post('/auth/manager/login', { email, password })
       login(data.user, data.token)
-      navigate('/manager/dashboard')
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed')
+      setLoading(false)
     }
   }
 
   return (
-    <div className='min-h-screen bg-[#1c1c1c] flex items-center justify-center'>
-      <div className='border-2 border-emerald-600 rounded-xl p-16 w-full max-w-md'>
-        <h2 className='text-white text-3xl font-bold text-center mb-8'>Manager Login</h2>
-        {error && <p className='text-red-400 text-center mb-4'>{error}</p>}
-        <form onSubmit={handleSubmit} className='flex flex-col gap-4'>
-          <input
-            type='email' value={email} onChange={(e) => setEmail(e.target.value)}
-            placeholder='Email' required
-            className='bg-transparent border-2 border-emerald-600 text-gray-300 placeholder:text-gray-400 outline-none py-3 px-5 rounded-full text-lg'
-          />
-          <input
-            type='password' value={password} onChange={(e) => setPassword(e.target.value)}
-            placeholder='Password' required
-            className='bg-transparent border-2 border-emerald-600 text-gray-300 placeholder:text-gray-400 outline-none py-3 px-5 rounded-full text-lg'
-          />
-          <button type='submit' className='bg-emerald-600 text-white py-3 rounded-full text-lg font-medium hover:bg-emerald-700 transition mt-2'>
-            Log in
+    <AuthLayout
+      image={authSide}
+      quote={`Great things in business are never done by one person. They're done by a team of people.`}
+      author='— Steve Jobs'
+    >
+      <div className='card p-8 sm:p-10'>
+        <h1 className='text-2xl font-extrabold tracking-tight text-white sm:text-3xl'>
+          Manager <span className='text-gradient'>Login</span>
+        </h1>
+        <p className='mt-2 text-sm text-slate-500'>
+          Welcome back — sign in to manage your team.
+        </p>
+
+        {error && (
+          <div className='mt-6 rounded-xl border border-rose-400/30 bg-rose-500/10 px-4 py-2.5 text-sm text-rose-300'>
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className='mt-6 flex flex-col gap-4'>
+          <div>
+            <label className='field-label'>Email address</label>
+            <div className='relative'>
+              <MailIcon className='pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500' />
+              <input
+                type='email' value={email} onChange={(e) => setEmail(e.target.value)}
+                placeholder='manager@company.com' required
+                className='field !pl-11'
+              />
+            </div>
+          </div>
+          <div>
+            <label className='field-label'>Password</label>
+            <div className='relative'>
+              <LockIcon className='pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500' />
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={password} onChange={(e) => setPassword(e.target.value)}
+                placeholder='••••••••' required
+                className='field !pl-11 !pr-11'
+              />
+              <button
+                type='button'
+                onClick={() => setShowPassword((v) => !v)}
+                className='absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 transition hover:text-slate-300'
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? <EyeSlashIcon className='h-4 w-4' /> : <EyeIcon className='h-4 w-4' />}
+              </button>
+            </div>
+          </div>
+
+          <button type='submit' disabled={loading} className='btn-primary mt-2 w-full !py-3'>
+            {loading ? 'Signing in…' : <>Sign In <ArrowRightIcon className='h-4 w-4' /></>}
           </button>
         </form>
-        <p className='text-gray-400 text-center mt-6'>
+
+        <p className='mt-6 text-center text-sm text-slate-500'>
           Don't have an account?{' '}
-          <Link to='/manager/register' className='text-emerald-400 hover:underline'>Register</Link>
-        </p>
-        <p className='text-gray-400 text-center mt-2'>
-          <Link to='/' className='text-gray-500 hover:text-gray-300'>← Back to Home</Link>
+          <Link to='/manager/register' className='font-semibold text-indigo-300 transition hover:text-indigo-200'>
+            Create one
+          </Link>
         </p>
       </div>
-    </div>
+    </AuthLayout>
   )
 }
 
